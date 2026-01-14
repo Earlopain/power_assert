@@ -14,7 +14,6 @@ end
 
 require 'test/unit'
 require 'power_assert'
-require 'ripper'
 
 module PowerAssertTestHelper
   class << self

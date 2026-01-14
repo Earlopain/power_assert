@@ -1,8 +1,17 @@
-require 'ripper'
-
 module PowerAssert
   class Parser
     Ident = Struct.new(:type, :name, :column)
+
+    # Prism is the default parser since Ruby 3.4. It contains a compatibility layer
+    # with ripper that returns data in the same format that ripper would.
+    RipperImplementation = begin
+      gem "prism", ">= 1.0.0"
+      require "prism"
+      Prism::Translation::Ripper
+    rescue LoadError
+      require "ripper"
+      Ripper
+    end
 
     attr_reader :line, :path, :lineno, :binding
 
@@ -18,7 +27,7 @@ module PowerAssert
     end
 
     def idents
-      @idents ||= extract_idents(Ripper.sexp(@line_for_parsing))
+      @idents ||= extract_idents(RipperImplementation.sexp(@line_for_parsing))
     end
 
     def call_paths
